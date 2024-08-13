@@ -20,6 +20,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'last_seen'
     ];
 
     /**
@@ -56,5 +57,9 @@ class User extends Authenticatable
     public function receivedMessages()
     {
         return $this->hasMany(Message::class, 'receiver_id');
+    }
+    public function isActive()
+    {
+        return $this->last_seen && $this->last_seen >= now()->subMinutes(5);
     }
 }
