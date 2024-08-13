@@ -97,14 +97,8 @@
         });
 
         $(document).ready(function() {
+            // Initialize EventSource for real-time messages
             let eventSource;
-
-            $('#receiver').change(function() {
-                if (eventSource) {
-                    eventSource.close(); // Close previous connection
-                }
-                loadMessages();
-            });
 
             function loadMessages() {
                 const receiver_id = $('#receiver').val();
@@ -120,9 +114,18 @@
                                 `<div class="message ${messageClass}"><strong>${message.sender}:</strong> ${message.message}</div>`
                             );
                         });
+
+                        // Scroll to the bottom of the chat container
+                        const messagesDiv = $('#messages');
+                        messagesDiv.scrollTop(messagesDiv[0].scrollHeight);
                     };
                 }
             }
+
+            // Load messages when the receiver changes
+            $('#receiver').change(function() {
+                loadMessages();
+            });
         });
     </script>
 @endsection
