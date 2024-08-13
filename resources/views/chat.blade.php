@@ -60,7 +60,9 @@
 
     <script>
         $(document).ready(function() {
-            // Function to send the message
+            let eventSource;
+
+            // Function to send a message
             function sendMessage() {
                 const receiver_id = $('#receiver').val();
                 const message = $('#message').val();
@@ -88,21 +90,22 @@
 
             // Key press event for the message input field
             $('#message').keypress(function(event) {
-                // Check if the Enter key is pressed
                 if (event.which === 13) {
-                    event.preventDefault(); // Prevent the default action of the Enter key
+                    event.preventDefault();
                     sendMessage();
                 }
             });
-        });
 
-        $(document).ready(function() {
-            // Initialize EventSource for real-time messages
-            let eventSource;
-
+            // Function to load messages for a selected receiver
             function loadMessages() {
                 const receiver_id = $('#receiver').val();
                 if (receiver_id) {
+                    // Close existing EventSource connection if any
+                    if (eventSource) {
+                        eventSource.close();
+                    }
+
+                    // Initialize new EventSource for the selected receiver
                     eventSource = new EventSource(`/messages/${receiver_id}`);
                     eventSource.onmessage = function(event) {
                         const messages = JSON.parse(event.data);
@@ -122,10 +125,13 @@
                 }
             }
 
-            // Load messages when the receiver changes
+            // Change event for the receiver select element
             $('#receiver').change(function() {
                 loadMessages();
             });
+
+            // Initialize messages when the page loads
+            loadMessages();
         });
     </script>
 @endsection
