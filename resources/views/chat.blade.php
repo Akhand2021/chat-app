@@ -133,13 +133,20 @@
 
                 eventSourceUsers.onmessage = function(event) {
                     const users = JSON.parse(event.data);
+                    const currentTime = new Date();
 
                     users.forEach(user => {
                         // Find the list item for the current user
                         const userItem = $(`#user-list .user-item[data-id="${user.id}"]`);
 
-                        // Determine if the user is active
-                        const isActive = user.last_seen ? 'green' : 'gray';
+                        // Convert the last_seen timestamp to a Date object
+                        const lastSeenTime = new Date(user.last_seen);
+
+                        // Calculate the time difference in milliseconds
+                        const timeDifference = currentTime - lastSeenTime;
+
+                        // Determine if the user is active (within the last minute)
+                        const isActive = timeDifference <= 60000 ? 'green' : 'gray';
 
                         // Update the status dot color if the user item exists
                         if (userItem.length > 0) {
@@ -158,10 +165,9 @@
 
                 eventSourceUsers.onerror = function(event) {
                     // Handle errors if necessary
-                    console.error("Error with users EventSource:", event);
+                    // console.error("Error with users EventSource:", event);
                 };
             }
-
 
             $('#user-list').on('click', '.user-item', function() {
                 const receiverId = $(this).data('id');

@@ -19,7 +19,7 @@ class UserController extends Controller
         // Fetch users who are active and exclude the current authenticated user
         $users = User::where('id', '!=', Auth::id()) // Exclude the current user
             ->get();
-    
+
         // Return the response as a stream with Server-Sent Events (SSE)
         $response = response()->stream(function () use ($users) {
             // Send the data as a JSON-encoded string
@@ -31,8 +31,17 @@ class UserController extends Controller
             'Cache-Control' => 'no-cache',
             'Connection' => 'keep-alive',
         ]);
-    
+
         return $response;
     }
-    
+    public function generateToken(Request $request)
+    {
+        $user = User::find($request->user_id);
+        if ($user) {
+            return response()->json([
+                'token' => $user->createToken('YourAppName')->plainTextToken
+            ]);
+        }
+        return response()->json(['error' => 'User not found'], 404);
+    }
 }
