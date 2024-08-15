@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -37,11 +38,12 @@ class UserController extends Controller
     public function generateToken(Request $request)
     {
         $user = User::find($request->user_id);
-        if ($user) {
-            return response()->json([
-                'token' => $user->createToken('YourAppName')->plainTextToken
-            ]);
+        if (empty($user)) {
+            return response()->json(['error' => 'User not found'], 404);
         }
-        return response()->json(['error' => 'User not found'], 404);
+        $user->api_token = Str::random(60);
+        $user->save();
+
+        return response()->json(['token' => $user->api_token]);
     }
 }
