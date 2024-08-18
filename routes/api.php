@@ -6,8 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use App\Http\Middleware\ApiKeyMiddleware;
+use App\Http\Middleware\UpdateLastSeen;
 
-Route::middleware(ApiKeyMiddleware::class)->group(function () {
+
+Route::middleware(ApiKeyMiddleware::class, UpdateLastSeen::class)->group(function () {
     Route::get('/chat', function () {
         $users = User::where('id', '!=', auth()->id())->get(); // Exclude the current user
         return view('chat', compact('users'));
