@@ -63,30 +63,43 @@
             background-color: gray;
         }
 
-        #messages .sender {
-            text-align: left;
-            background-color: #d4edda;
-            padding: 8px;
-            border-radius: 15px;
+        .message {
             margin-bottom: 10px;
-            width: fit-content;
-            max-width: 70%;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 30%;
+            position: relative;
+        }
+
+        .sender {
+            background-color: #b9e296;
+            text-align: left;
             margin-left: auto;
         }
-
-        #messages .receiver {
-            text-align: right;
-            background-color: #cce5ff;
-            padding: 8px;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            width: fit-content;
-            max-width: 70%;
+        
+        .sender::before {
+            content: '';
+            position: absolute;
+            top: 0px;
+            right: -10px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent transparent #b9e296 transparent;
         }
-
-        #messages {
-            display: flex;
-            flex-direction: column;
+        
+        .receiver {
+            background-color: #c7d9ff;
+            text-align: right;
+        }
+        
+        .receiver::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -10px;
+            border-width: 11px;
+            border-style: solid;
+            border-color: transparent transparent #c7d9ff transparent;
         }
     </style>
 
