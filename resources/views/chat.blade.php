@@ -12,7 +12,7 @@
                     <div id="user-list" class="card-body" style="height: 500px; overflow-y: auto;">
                         <ul class="list-group">
                             @foreach ($users as $user)
-                                <li class="list-group-item user-item" data-id="{{ $user->id }}">
+                                <li class="list-group-item user-item" last-seen="" data-id="{{ $user->id }}">
                                     {{ $user->name }}&nbsp;
                                     <span class="status-dot"
                                         style="float: right; width: 10px; height: 10px; border-radius: 50%; background-color: gray;">
@@ -29,6 +29,7 @@
                 <div id="chat" class="card">
                     <div class="card-header">
                         <h4 id="chat-header">Select a user to start chatting</h4>
+                        <small class="last_seen_user"></small>
                     </div>
                     <div class="card-body">
                         <div id="messages" class="mt-4 p-3 border"
@@ -73,10 +74,10 @@
 
         .sender {
             background-color: #b9e296;
-            text-align: left;
+            text-align: right;
             margin-left: auto;
         }
-        
+
         .sender::before {
             content: '';
             position: absolute;
@@ -86,12 +87,23 @@
             border-style: solid;
             border-color: transparent transparent #b9e296 transparent;
         }
-        
+
         .receiver {
             background-color: #c7d9ff;
-            text-align: right;
+            text-align: left;
         }
-        
+
+        small.sender {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+
+        small.receiver {
+            display: flex;
+            justify-content: flex-start;
+        }
+
         .receiver::before {
             content: '';
             position: absolute;
@@ -123,7 +135,7 @@
                         const messageClass = (message.sender === '{{ auth()->user()->name }}') ?
                             'sender' : 'receiver';
                         $('#messages').append(
-                            `<div class="message ${messageClass}"><strong>${message.sender}:</strong> ${message.message}</div>`
+                            `<div class="message ${messageClass}"><strong>${message.sender}:</strong> ${message.message} <br> <small class="${messageClass}">${message.created_at.split(' ')[1]}</small></div>`
                         );
                     });
 
@@ -164,10 +176,11 @@
                         // Update the status dot color if the user item exists
                         if (userItem.length > 0) {
                             userItem.find('.status-dot').css('background-color', isActive);
+                            userItem.attr("last-seen", user.last_seen);
                         } else {
                             // If the user item does not exist, add it to the list
                             $('#user-list ul').append(`
-                    <li class="list-group-item user-item" data-id="${user.id}" style="display: flex; align-items: center;">
+                    <li class="list-group-item user-item" data-id="${user.id}" data-lastseen="${user.last_seen}" style="display: flex; align-items: center;">
                         <span class="status-dot" style="background-color: ${isActive};"></span> &nbsp;
                         <span>${user.name}</span>
                     </li>
@@ -187,11 +200,38 @@
                 $('.user-item').removeClass('active');
                 $(this).addClass('active');
                 $('#chat-header').text('Chat with ' + $(this).text());
+
+                var currentDate = new Date();
+                var currentDay = currentDate.getDate();
+                var currentMonth = currentDate.getMonth();
+                var currentYear = currentDate.getFullYear();
+
+                var lastSeen = $(this).attr("last-seen") ? new Date($(this).attr("last-seen")) : null;
+
+                var lastSeenText = '';
+
+                if (lastSeen) {
+                    var lastSeenDay = lastSeen.getDate();
+                    var lastSeenMonth = lastSeen.getMonth();
+                    var lastSeenYear = lastSeen.getFullYear();
+
+                    if (lastSeenDay === currentDay && lastSeenMonth === currentMonth && lastSeenYear ===
+                        currentYear) {
+                        // Last seen is today, show only time
+                        lastSeenText = lastSeen.toLocaleTimeString();
+                    } else {
+                        // Last seen is not today, show full date and time
+                        lastSeenText = lastSeen.toLocaleDateString() + ' ' + lastSeen.toLocaleTimeString();
+                    }
+                }
+
+                $('.last_seen_user').text('Last Seen: ' + lastSeenText);
                 $('#message').prop('disabled', false);
                 $('#send').prop('disabled', false);
 
                 loadMessages(receiverId);
             });
+
 
             $('#send').click(function() {
                 const receiverId = $('.user-item.active').data('id');

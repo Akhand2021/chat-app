@@ -14,6 +14,7 @@ Route::middleware(['auth', UpdateLastSeen::class])->group(function () {
 
     Route::post('/send-message', [MessageController::class, 'sendMessage']);
     Route::get('/messages/{receiver}', [MessageController::class, 'fetchMessages']); // SSE endpoint
+    Route::get('/stream-active-users', [UserController::class, 'streamActiveUsers']);
 });
 
 Route::get('/', function () {
@@ -26,4 +27,4 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/stream-active-users', [UserController::class, 'streamActiveUsers']);
+
