@@ -13,6 +13,9 @@ class Message extends Model
         'sender_id',
         'receiver_id',
         'message',
+        'attachment',
+        'is_read',
+        'is_delivered'
     ];
 
 
@@ -27,5 +30,10 @@ class Message extends Model
     public function receiver()
     {
         return $this->belongsTo(User::class, 'receiver_id');
+    }
+    public function markAsRead()
+    {
+        $this->is_read = true;
+        $this->save();
     }
 }

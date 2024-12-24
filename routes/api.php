@@ -16,7 +16,8 @@ Route::middleware(ApiKeyMiddleware::class, UpdateLastSeen::class)->group(functio
     });
 
     Route::post('/send-message', [MessageController::class, 'sendMessage']);
-    Route::get('/messages/{receiver}', [MessageController::class, 'fetchMessages']); // SSE endpoint
+    Route::get('/messages/{receiver}', [MessageController::class, 'fetchMessages']); 
+    Route::post('/messages/read', [MessageController::class, 'markAsRead']);
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

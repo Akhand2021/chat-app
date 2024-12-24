@@ -5,16 +5,36 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use App\Http\Middleware\UpdateLastSeen;
+use Illuminate\Support\Facades\Mail;
+
+
+// make a route to send test email
+Route::get('/send-test-email', function () {
+    try {
+        $message = new \App\Models\Message();
+        $message->message = 'This is a test email';
+        $message->sender_id = 1;
+        $message->receiver_id = 2;
+        $message->save();
+        $receiver = User::find(2);
+        if ($receiver) {
+            Mail::to($receiver->email)->send(new \App\Mail\MessageNotification($message));
+        }
+        return 'Email sent successfully';
+    } catch (\Exception $e) {
+        \Log::error('Error sending test email: ' . $e->getMessage());
+        return 'Failed to send email';
+    }
+});
 
 Route::middleware(['auth', UpdateLastSeen::class])->group(function () {
-    Route::get('/chat', function () {
-        $users = User::where('id', '!=', auth()->id())->get(); // Exclude the current user
-        return view('chat', compact('users'));
-    });
+    Route::get('/chat', [UserController::class,'index']);
 
     Route::post('/send-message', [MessageController::class, 'sendMessage']);
-    Route::get('/messages/{receiver}', [MessageController::class, 'fetchMessages']); // SSE endpoint
+    Route::get('/messages/{receiver}', [MessageController::class, 'fetchMessages']); 
     Route::get('/stream-active-users', [UserController::class, 'streamActiveUsers']);
+    Route::post('/messages/read', [MessageController::class, 'markAsRead']);
+
 });
 
 Route::get('/', function () {
